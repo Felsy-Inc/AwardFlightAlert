@@ -1,0 +1,235 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Plan {
+  FREE
+  PRO
+}
+
+enum AirportCode {
+  AMS
+  BRU
+  CDG
+  FRA
+  LHR
+  LGW
+  MAD
+  BCN
+  FCO
+  LIS
+  ATH
+  VIE
+  JFK
+  EWR
+  BOS
+  IAD
+  MIA
+  LAX
+  SFO
+  HND
+  NRT
+}
+
+enum DestinationRegion {
+  JAPAN
+  US_EAST
+  US_WEST
+  EUROPE
+}
+
+enum Program {
+  FLYING_BLUE
+  MILES_AND_MORE
+  AVIOS
+}
+
+enum Cabin {
+  BUSINESS
+  PREMIUM_ECONOMY
+  ECONOMY
+  FIRST
+}
+
+enum AlertStatus {
+  ACTIVE
+  PAUSED
+  CANCELLED
+}
+
+enum ProviderRunStatus {
+  PENDING
+  RUNNING
+  SUCCESS
+  FAILED
+}
+
+enum NotificationStatus {
+  NONE
+  PENDING
+  SENT
+  FAILED
+  SUPPRESSED
+}
+
+enum NotificationType {
+  ALERT_MATCH
+  WELCOME
+  OTHER
+}
+
+enum NotificationChannel {
+  EMAIL
+}
+
+enum SubscriptionStatus {
+  INACTIVE
+  ACTIVE
+  PAST_DUE
+  CANCELED
+}
+
+model Profile {
+  id           String   @id
+  email        String
+  fullName     String?
+  locale       String   @default("en")
+  plan         Plan     @default(FREE)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  alerts       Alert[]
+  notifications Notification[]
+  subscription Subscription?
+
+  @@index([email])
+}
+
+model Alert {
+  id                String       @id @default(cuid())
+  userId            String
+  originAirport     AirportCode
+  destinationRegion DestinationRegion
+  startDate         DateTime
+  endDate           DateTime
+  program           Program
+  cabin             Cabin        @default(BUSINESS)
+  seatsNeeded       Int
+  maxPoints         Int?
+  maxTaxes          Int?
+  status            AlertStatus  @default(ACTIVE)
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  user   Profile @relation(fields: [userId], references: [id])
+  matches AlertMatch[]
+  notifications Notification[]
+
+  @@index([userId, status])
+  @@index([userId, createdAt])
+  @@index([originAirport, destinationRegion, program, status])
+}
+
+model ProviderRun {
+  id             String           @id @default(cuid())
+  providerName   String
+  status         ProviderRunStatus @default(PENDING)
+  startedAt      DateTime         @default(now())
+  completedAt    DateTime?
+  recordsIngested Int             @default(0)
+  errorMessage   String?
+  metadata       Json?
+  observations   AwardObservation[]
+
+  @@index([providerName])
+  @@index([startedAt])
+}
+
+model AwardObservation {
+  id                String          @id @default(cuid())
+  providerRunId     String?
+  sourceProvider    String
+  program           Program
+  airline           String
+  flightNumber      String
+  originAirport     AirportCode
+  destinationAirport AirportCode
+  destinationRegion DestinationRegion
+  departureDatetime DateTime
+  arrivalDatetime   DateTime
+  departureDate     DateTime
+  cabin             Cabin
+  pointsCost        Int
+  taxesAmount       Int
+  currency          String
+  seatsAvailable    Int
+  bookingUrl        String?
+  bookingHint       String?
+  observedAt        DateTime @default(now())
+  fingerprintHash   String @unique
+  createdAt         DateTime @default(now())
+
+  providerRun ProviderRun? @relation(fields: [providerRunId], references: [id])
+  matches     AlertMatch[]
+  notifications Notification[]
+
+  @@index([originAirport, destinationRegion, program, departureDate])
+  @@index([destinationRegion, program, departureDate])
+}
+
+model AlertMatch {
+  id                     String            @id @default(cuid())
+  alertId                String
+  observationId          String
+  matchedAt              DateTime          @default(now())
+  notificationStatus     NotificationStatus @default(NONE)
+  lastNotifiedAt         DateTime?
+  notificationFingerprint String
+
+  alert       Alert           @relation(fields: [alertId], references: [id])
+  observation AwardObservation @relation(fields: [observationId], references: [id])
+
+  @@index([alertId])
+  @@index([observationId])
+  @@unique([alertId, notificationFingerprint])
+}
+
+model Notification {
+  id               String            @id @default(cuid())
+  userId           String
+  alertId          String?
+  observationId    String?
+  type             NotificationType
+  channel          NotificationChannel
+  subject          String
+  status           NotificationStatus
+  providerMessageId String?
+  sentAt           DateTime?
+  createdAt        DateTime @default(now())
+
+  user        Profile?         @relation(fields: [userId], references: [id])
+  alert       Alert?           @relation(fields: [alertId], references: [id])
+  observation AwardObservation? @relation(fields: [observationId], references: [id])
+
+  @@index([userId, createdAt])
+  @@index([type, createdAt])
+}
+
+model Subscription {
+  id                 String             @id @default(cuid())
+  userId             String             @unique
+  plan               Plan
+  stripeCustomerId   String?
+  stripeSubscriptionId String?
+  status             SubscriptionStatus @default(INACTIVE)
+  currentPeriodEnd   DateTime?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  user Profile @relation(fields: [userId], references: [id])
+}
+
