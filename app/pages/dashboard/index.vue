@@ -18,6 +18,17 @@ const { data: session, status, error } = await useAsyncData<SessionResponse>(
   () => $fetch('/api/auth/session'),
 )
 
+if (import.meta.client) {
+  watchEffect(() => {
+    const hasUser = !!session.value?.user
+    const hasError = !!error.value
+
+    if (!hasUser && (status.value === 'success' || hasError)) {
+      navigateTo('/auth/login')
+    }
+  })
+}
+
 const isDev = import.meta.dev
 
 const {
