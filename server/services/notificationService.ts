@@ -58,7 +58,7 @@ const buildAlertMatchEmail = (input: {
       <a href="${appUrl}/dashboard" style="color: #0284c7; font-weight: 600;">Open dashboard</a>
     </p>
     <p style="margin: 12px 0 0; font-size: 12px; color: #64748b;">
-      AwardFlightNotice MVP • mock data provider
+      AwardFlightAlert MVP • mock data provider
     </p>
   </div>
   `

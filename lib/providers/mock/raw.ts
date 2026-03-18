@@ -38,7 +38,7 @@ type MockProviderOptions = {
 }
 
 const DEFAULT_OPTIONS: MockProviderOptions = {
-  seed: 'awardflightnotice',
+  seed: 'awardflightalert',
   observations: 120,
   startDaysFromNow: 2,
   dateWindowDays: 90,

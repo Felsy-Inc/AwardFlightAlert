@@ -1,5 +1,5 @@
 {
-  "name": "AwardFlightNotice",
+  "name": "AwardFlightAlert",
   "type": "module",
   "private": true,
   "scripts": {

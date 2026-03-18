@@ -1,4 +1,4 @@
-# AwardFlightNotice (MVP)
+# AwardFlightAlert (MVP)
 
 Nuxt 4 + Vue 3 + TypeScript app for tracking (mock) business class award availability and sending email alerts.
 

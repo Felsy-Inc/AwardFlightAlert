@@ -47,7 +47,7 @@ const signOut = async () => {
       <NuxtLink to="/" class="flex items-center gap-2">
         <span class="h-6 w-6 rounded-full" style="background: color-mix(in srgb, var(--afn-accent) 65%, transparent); box-shadow: 0 0 0 1px color-mix(in srgb, var(--afn-accent) 30%, transparent);" />
         <span class="text-sm font-semibold tracking-wide afn-text-strong">
-          AwardFlightNotice
+          AwardFlightAlert
         </span>
       </NuxtLink>
       <nav class="afn-nav flex flex-wrap items-center justify-end gap-3 text-sm">

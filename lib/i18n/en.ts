@@ -1,6 +1,6 @@
 export const en = {
   common: {
-    appName: 'AwardFlightNotice',
+    appName: 'AwardFlightAlert',
   },
   nav: {
     dashboard: 'Dashboard',
