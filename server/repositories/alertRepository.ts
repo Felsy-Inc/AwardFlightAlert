@@ -65,11 +65,25 @@ export const updateAlertForUser = async (userId: string, id: string, data: Alert
 }
 
 export const deleteAlertForUser = async (userId: string, id: string) => {
-  return prisma.alert.deleteMany({
-    where: {
-      id,
-      userId,
-    },
+  return prisma.$transaction(async (tx) => {
+    await tx.alertMatch.deleteMany({
+      where: {
+        alertId: id,
+      },
+    })
+
+    await tx.notification.deleteMany({
+      where: {
+        alertId: id,
+      },
+    })
+
+    return tx.alert.deleteMany({
+      where: {
+        id,
+        userId,
+      },
+    })
   })
 }
 
