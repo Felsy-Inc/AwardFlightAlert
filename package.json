@@ -2,12 +2,15 @@
   "name": "AwardFlightAlert",
   "type": "module",
   "private": true,
+  "engines": {
+  "node": ">=20"
+  },
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare",
+    "postinstall": "nuxt prepare && prisma generate",
     "prisma:validate": "prisma validate",
     "prisma:generate": "prisma generate",
     "prisma:migrate:dev": "prisma migrate dev",
